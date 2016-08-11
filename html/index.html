@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="utf-8" />
+    <title>Simple Login Test</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <link href="app-content/app.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="jumbotron">
+        <div class="container">
+            <div class="col-sm-8 col-sm-offset-2">
+                <div ng-class="{ 'alert': flash, 'alert-success': flash.type === 'success', 'alert-danger': flash.type === 'error' }" ng-if="flash" ng-bind="flash.message"></div>
+                <div ng-view></div>
+            </div>
+        </div>
+    </div>
+    <div class="credits text-center">
+        <p>
+            <a href="https://github.com/kmansoo/Luna">Luna : It's a simple S/W platform to make applications or web server using RESTful API.</a>
+        </p>
+    </div>
+
+    <script src="js/jquery-2.0.3.min.js"></script>
+    <script src="js/angularjs/1.2.20/angular.js"></script>
+    <script src="js/angularjs/1.2.20/angular-route.js"></script>
+    <script src="js/angularjs/1.2.13/angular-cookies.js"></script>
+    <script src="js/angularjs/angular-md5.min.js"></script>
+
+    <script src="app.js"></script>
+    <script src="app-services/authentication.service.js"></script>
+    <script src="app-services/flash.service.js"></script>
+    <script src="app-services/user.service.js"></script>
+
+    <script src="login/login.controller.js"></script>
+    <script src="system/system.controller.js"></script>
+
+</body>
+</html>
