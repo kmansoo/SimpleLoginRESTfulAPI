@@ -37,7 +37,7 @@ bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pReq
             Json::StyledWriter oWriter;
 
             oResponseJsonValue["user"] = strUserID;
-            oResponseJsonValue["password"] = HP11X::md5("admin");
+            oResponseJsonValue["password"] = BZF::md5("admin");
 
             std::string strJsonData = oWriter.write(oResponseJsonValue);
 

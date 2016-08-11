@@ -28,7 +28,7 @@ documentation and/or software.
 #include <string>
 #include <iostream>
 
-namespace HP11X {
+namespace BZF {
 
     // a small class for calculating MD5 hashes of strings or byte arrays
     // it is not meant to be fast or secure

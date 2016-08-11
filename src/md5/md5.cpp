@@ -30,7 +30,7 @@ documentation and/or software.
 
 #include <cstring>
 
-namespace HP11X {
+namespace BZF {
 
     // Constants for MD5Transform routine.
 #define S11 7
