@@ -1,35 +1,36 @@
-﻿<script src="js/fileinput.min.js"></script> 
+﻿<script src="js/etc_angular_components/fileinput.min.js"></script>
 
 <div>
     <h2>System Setting</h2>
-    <form name="form">
-        <div class="form-group well">
-            <label for="password">System password</label>
-            <input type="text" name="password" id="password" class="form-control" ng-disabled="vm.isRebooting" ng-model="vm.password" required />
-            <button type="button" class="btn btn-info" ng-disabled="vm.isRebooting" ng-click="vm.get_password()">Get Password</button>
-            <button type="button" ng-disabled="form.$invalid || vm.isRebooting" class="btn btn-primary" ng-click="vm.set_password()">Set Password</button>
-        </div>
-        <div class="form-group well">
-            <label>Rx/Tx Power</label>
-            <div class="form-inline">
-                <label>Rx:</label>
-                <input type="text" name="rx_power" id="rx_power" class="form-control" readonly="readonly" ng-model="vm.rx_power"/>
-                <label>Tx:</label>
-                <input type="text" name="tx_power" id="tx_power" class="form-control" readonly="readonly" ng-model="vm.tx_power"/>
-                <button type="button" class="btn btn-info" ng-disabled="vm.isRebooting" ng-click="vm.retrieve_rx_tx_power()">Retrieve</button>
-            </div>
-        </div>
-        <div class="form-group well">
-            <label class="control-label">Firmware Upgrade</label>
-            <input id="upload_file" type="file" class="file" data-show-preview="false" uploadTitle="aaa"/>
-        </div>
 
-        <div class="form-horizontal">
-            <input type="text" name="status" id="status" class="form-control" readonly="readonly" ng-model="vm.status"/>
+    <div class="form-group well">
+        <label for="password">System password</label>
+        <input type="text" name="password" id="password" class="form-control" ng-disabled="vm.isRebooting" ng-model="vm.password" required />
+        <button type="button" class="btn btn-info" ng-disabled="vm.isRebooting" ng-click="vm.get_password()">Get Password</button>
+        <button type="button" ng-disabled="form.$invalid || vm.isRebooting" class="btn btn-primary" ng-click="vm.set_password()">Set Password</button>
+    </div>
+    <div class="form-group well">
+        <label>Rx/Tx Power</label>
+        <div class="form-inline">
+            <label>Rx:</label>
+            <input type="text" name="rx_power" id="rx_power" class="form-control" readonly="readonly" ng-model="vm.rx_power"/>
+            <label>Tx:</label>
+            <input type="text" name="tx_power" id="tx_power" class="form-control" readonly="readonly" ng-model="vm.tx_power"/>
+            <button type="button" class="btn btn-info" ng-disabled="vm.isRebooting" ng-click="vm.retrieve_rx_tx_power()">Retrieve</button>
         </div>
-        <br>
-        <div class="form-group" class="form-inline">
-            <button type="button" class="btn btn-danger center-block" ng-disabled="vm.isRebooting" ng-click="vm.reboot_system()">Reboot System</button>
-        </div>
-    </form>
+    </div>
+    <div class="form-group well">
+        <form ng-submit="vm.upgrade_firmware()">
+            <label class="control-label">Firmware Upgrade</label>
+            <input id="upload_file" type="file" class="file" data-show-preview="false" ng-model="vm.upload_file"/>
+        </form>
+    </div>
+    <div class="form-horizontal">
+        <input type="text" name="status" id="status" class="form-control" readonly="readonly" ng-model="vm.status"/>
+    </div>
+    <br>
+    <div class="form-group" class="form-inline">
+        <button type="button" class="btn btn-danger center-block" ng-disabled="vm.isRebooting" ng-click="vm.reboot_system()">Reboot System</button>
+    </div>
+
 </div>

@@ -2,7 +2,7 @@
     'use strict';
 
     angular
-        .module('app', ['ngRoute', 'ngCookies', 'angular-md5'])
+        .module('app', ['ngRoute', 'ngCookies', 'angular-md5', 'ngFileUpload', 'angularModalService', 'ngAnimate', 'ui.bootstrap'])
         .config(config)
         .run(run);
 

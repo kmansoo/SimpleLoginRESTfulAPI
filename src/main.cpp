@@ -7,10 +7,18 @@
 #include "ccNetwork/ccNetworkManager.h"
 
 #include "ccWebServer/ccWebServerManager.h"
+#include "ccWebServer/ccWebServerPageDirectory.h"
+#include "ccWebServer/ccWebServerFileUploadPage.h"
 
 #include "ccMongooseServer/ccMongooseWebServerObjectFactory.h"
 
 #include "SimpleLoginRESTfulApi.h"
+
+class FirmwareUploadPage : public Luna::ccWebServerFileUploadPage
+{
+public:
+    FirmwareUploadPage() : ccWebServerFileUploadPage("/upload_firmware", "mskim.dat") {}
+};
 
 int main(int argc, char* argv[])
 {
@@ -21,12 +29,16 @@ int main(int argc, char* argv[])
 
     auto pWebApi = std::make_shared<SimpleLoginRESTfulApi>();
 
-    std::string web_directory = ".";
+    std::string web_directory_path = ".";
 
     if (argc >= 2)
-        web_directory = argv[1];
+        web_directory_path = argv[1];
 
-    Luna::ccWebServerManager::getInstance().createWebServer("Simple Login Web Server", "8000", web_directory);
+    auto pageDirecotry = std::make_shared<Luna::ccWebServerPageDirectory>();
+
+    pageDirecotry->registerPage(std::make_shared<FirmwareUploadPage>());
+
+    Luna::ccWebServerManager::getInstance().createWebServer("Simple Login Web Server", "8000", web_directory_path, pageDirecotry);
     Luna::ccWebServerManager::getInstance().addRESTfulApi(pWebApi);
 
     Luna::ccWebServerManager::getInstance().start();

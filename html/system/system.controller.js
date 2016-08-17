@@ -1,12 +1,22 @@
 ﻿(function () {
     'use strict';
 
+    /*
     angular
         .module('app')
         .controller('SystemController', SystemController);
 
-    SystemController.$inject = ['$location', 'AuthenticationService', '$timeout', '$http'];
-    function SystemController($location, AuthenticationService, $timeout, $http) {
+     SystemController.$inject = ['$location', 'AuthenticationService', '$timeout', '$http', 'Upload', 'ModalService'];
+     function SystemController($location, AuthenticationService, $timeout, $http, Upload, ModalService) {
+
+    */
+
+    var app = angular.module('app');
+
+    app.controller('SystemController', SystemController);
+    SystemController.$inject = ['$location', '$rootScope', 'AuthenticationService', '$timeout', 'ModalService'];
+    function SystemController($location, $rootScope, AuthenticationService, $timeout, ModalService) {
+
         var vm = this;
 
         vm.get_password = get_password;
@@ -14,12 +24,14 @@
         vm.retrieve_rx_tx_power = retrieve_rx_tx_power;
         vm.upgrade_firmware = upgrade_firmware;
         vm.reboot_system = reboot_system;
+        vm.upload_file = upload_file;
 
         vm.password = "";
         vm.rx_power = "-";
         vm.tx_power = "-";
         vm.status = "";
         vm.isRebooting = false;
+        vm.firmware_filename = "TTT";
 
         (function initController() {
             // reset login status
@@ -102,8 +114,56 @@
                 });
         };
 
+        function upload_and_upgrade_firmware() {
+
+            $rootScope.system_controller = vm;
+
+            ModalService.showModal({
+                controller: 'FileUploadController',
+                templateUrl: '/system/file_upload.html',
+                controllerAs: 'vm'
+            }).then(function(modal) {
+                modal.element.modal();
+
+                modal.close.then(function(result) {
+                    console.log("You said " + result);
+                    //  message = "You said " + result;
+                });
+            });
+
+        };
+
         function upgrade_firmware() {
 
+            upload_and_upgrade_firmware();
+
+            /*
+            if (!vm.upload_file) {
+                console.log("Um, couldn't find the fileinput element.");
+            }
+            else if (!vm.upload_file.files) {
+                console.log("This browser doesn't seem to support the `files` property of file inputs.");
+            }
+            else if (!vm.upload_file.files[0]) {
+                console.log("Please select a file before clicking 'Load'");
+            }
+            else {
+                var selected_file = vm.upload_file.files[0];
+                console.log("File " + selected_file.name + " is " + selected_file.size + " bytes in size");
+
+                Upload.upload({
+                    url: '/upload_firmware',
+                    data: {file: selected_file}
+                }).then(function (resp) {
+                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+                }, function (resp) {
+                    console.log('Error status: ' + resp.status);
+                }, function (evt) {
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            }
+            */
         };
 
         function reboot_system() {
@@ -138,6 +198,72 @@
                 return { success: false, message: error };
             };
         }
+
+        function getUploadFilename() {
+            if (!vm.upload_file) {
+                return "";
+            }
+            else if (!vm.upload_file.files) {
+                return "";
+            }
+            else if (!vm.upload_file.files[0]) {
+                return "";
+            }
+
+            return vm.upload_file.files[0].name;
+        }
     }
+
+    app.controller('FileUploadController', FileUploadController);
+    FileUploadController.$inject = ['$location', '$rootScope', '$element', 'close', 'Upload'];
+    function FileUploadController($location, $rootScope, $element, close, Upload) {
+
+        var vm = this;
+
+        vm.filename = "";
+
+        (function initController() {
+            // reset login status
+            if (!$rootScope.system_controller.upload_file) {
+                console.log("Um, couldn't find the fileinput element.");
+            }
+            else if (!$rootScope.system_controller.upload_file.files) {
+                console.log("This browser doesn't seem to support the `files` property of file inputs.");
+            }
+            else if (!$rootScope.system_controller.upload_file.files[0]) {
+                console.log("Please select a file before clicking 'Load'");
+            }
+            else {
+                var selected_file = $rootScope.system_controller.upload_file.files[0];
+
+                vm.filename = selected_file.name;
+
+                console.log("File " + selected_file.name + " is " + selected_file.size + " bytes in size");
+
+                Upload.upload({
+                    url: '/upload_firmware',
+                    data: {file: selected_file}
+                }).then(function (resp) {
+                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+                }, function (resp) {
+                    console.log('Error status: ' + resp.status);
+                }, function (evt) {
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            }
+        })();
+
+        function close() {
+            //  $element.close("TTTT", 500); // close, but give 500ms for bootstrap to animate
+        }
+
+        function cancel() {
+            //  Manually hide the modal.
+            $element.modal('hide');
+
+            close(result, 500); // close, but give 500ms for bootstrap to animate
+        }
+    };
 
 })();
