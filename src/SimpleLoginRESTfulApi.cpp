@@ -24,7 +24,7 @@ SimpleLoginRESTfulApi::SimpleLoginRESTfulApi()
 
 bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
 {
-    switch (pRequest->getMethod())
+    switch ((std::uint32_t)pRequest->getMethod())
     {
     case Luna::ccWebServerRequest::HttpMethod_Get:
     {
@@ -56,7 +56,7 @@ bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pReq
 
 bool SimpleLoginRESTfulApi::password(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
 {
-    switch (pRequest->getMethod())
+    switch ((std::uint32_t)pRequest->getMethod())
     {
     case Luna::ccWebServerRequest::HttpMethod_Get:
     {
@@ -115,7 +115,7 @@ bool SimpleLoginRESTfulApi::password(std::shared_ptr<Luna::ccWebServerRequest> p
 
 bool SimpleLoginRESTfulApi::rx_tx_power(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
 {
-    switch (pRequest->getMethod())
+    switch ((std::uint32_t)pRequest->getMethod())
     {
     case Luna::ccWebServerRequest::HttpMethod_Get:
     {

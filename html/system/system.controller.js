@@ -114,13 +114,13 @@
                 });
         };
 
-        function upload_and_upgrade_firmware() {
+        function upgrade_firmware() {
 
             $rootScope.system_controller = vm;
 
             ModalService.showModal({
                 controller: 'FileUploadController',
-                templateUrl: '/system/file_upload.html',
+                templateUrl: 'system/file.upload.html',
                 controllerAs: 'vm'
             }).then(function(modal) {
                 modal.element.modal();
@@ -130,12 +130,6 @@
                     //  message = "You said " + result;
                 });
             });
-
-        };
-
-        function upgrade_firmware() {
-
-            upload_and_upgrade_firmware();
 
             /*
             if (!vm.upload_file) {
@@ -215,28 +209,64 @@
     }
 
     app.controller('FileUploadController', FileUploadController);
-    FileUploadController.$inject = ['$location', '$rootScope', '$element', 'close', 'Upload'];
-    function FileUploadController($location, $rootScope, $element, close, Upload) {
+    FileUploadController.$inject = ['$location', '$rootScope', '$element', '$timeout', 'close', 'Upload'];
+    function FileUploadController($location, $rootScope, $element, $timeout, close, Upload) {
 
         var vm = this;
 
         vm.filename = "";
 
+        vm.title = 'Firmware Upload'
+
+        vm.status_info = '';
+        vm.status_show = false;
+
+        vm.button_title = "Stop";
+
+        vm.pb_type = 'success';
+        vm.pb_value= 0;
+
+        vm.status_style = {"color":"black"};
+
         (function initController() {
+
+            $timeout(fileUpload, 100);
+
+        })();
+
+        function fileUpload() {
+            vm.status_show = false;
+
             // reset login status
             if (!$rootScope.system_controller.upload_file) {
-                console.log("Um, couldn't find the fileinput element.");
+                vm.status_info = "Um, couldn't find the upload file(s).";
+                vm.status_show = true;
+
+                console.log(vm.status_info);
+
+                vm.status_style = {"color":"red"}; // change the text color
             }
             else if (!$rootScope.system_controller.upload_file.files) {
-                console.log("This browser doesn't seem to support the `files` property of file inputs.");
+                vm.status_info = "This browser doesn't seem to support the `files` property of file inputs.";
+                vm.status_show = true;
+
+                console.log(vm.status_info);
+
+                vm.status_style = {"color":"red"}; // change the text color
             }
             else if (!$rootScope.system_controller.upload_file.files[0]) {
-                console.log("Please select a file before clicking 'Load'");
+                vm.status_info = "Please select a file before clicking 'Select'";
+                vm.status_show = true;
+
+                console.log(vm.status_info);
+
+                vm.status_style = {"color":"red"}; // change the text color
             }
             else {
                 var selected_file = $rootScope.system_controller.upload_file.files[0];
 
                 vm.filename = selected_file.name;
+                vm.button_title = "Stop";
 
                 console.log("File " + selected_file.name + " is " + selected_file.size + " bytes in size");
 
@@ -244,25 +274,48 @@
                     url: '/upload_firmware',
                     data: {file: selected_file}
                 }).then(function (resp) {
+                    vm.button_title = "Close";
+
+                    vm.status_info = 'The file uploaded successfully.';
+                    vm.status_show = true;
+
+                    vm.status_style = {"color":"blue"}; // change the text color
+
                     console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
                 }, function (resp) {
+                    vm.status_info = 'There are some errors in the device. Please check your device and retry again later.';
+                    vm.status_show = true;
+
+                    vm.button_title = "OK";
+                    vm.pb_type = 'danger';
+
+                    //$('#upload_status').css('background-color' , '#FF0000'); // change the background color
+                    vm.status_style = {"color":'red'}; // change the text color
+
                     console.log('Error status: ' + resp.status);
+
                 }, function (evt) {
-                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    var progressPercentage = 0.0;
+
+                    if (evt.total > 0)
+                        progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+
+                    vm.pb_value = progressPercentage;
+
                     console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
                 });
             }
-        })();
-
-        function close() {
-            //  $element.close("TTTT", 500); // close, but give 500ms for bootstrap to animate
         }
 
-        function cancel() {
-            //  Manually hide the modal.
-            $element.modal('hide');
+        function close() {
+            if (vm.pb_value == 100)
+            {
+            }
 
+            $element.modal('hide');
             close(result, 500); // close, but give 500ms for bootstrap to animate
+
+            //  $element.close("TTTT", 500); // close, but give 500ms for bootstrap to animate
         }
     };
 
