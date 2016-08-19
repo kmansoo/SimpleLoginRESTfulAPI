@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
 
     auto pWebApi = std::make_shared<SimpleLoginRESTfulApi>();
 
-    std::string web_directory_path = ".";
+    std::string web_directory_path = "./html";
 
     if (argc >= 2)
         web_directory_path = argv[1];

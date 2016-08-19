@@ -7,6 +7,9 @@
     <Filter Include="src\md5">
       <UniqueIdentifier>{99bbe608-e41b-4bcd-963c-8531a7b59026}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\fake_device">
+      <UniqueIdentifier>{8ee55473-7827-4563-84e0-3c4aa65f502f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\main.cpp">
@@ -18,6 +21,9 @@
     <ClCompile Include="..\..\src\SimpleLoginRESTfulApi.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\fake_device\fake_device.cpp">
+      <Filter>src\fake_device</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\md5\md5.h">
@@ -25,6 +31,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\SimpleLoginRESTfulApi.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\fake_device\fake_device.h">
+      <Filter>src\fake_device</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

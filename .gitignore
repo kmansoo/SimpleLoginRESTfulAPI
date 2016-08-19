@@ -1,8 +1,8 @@
 .DS_Store
 ._.DS_Store
 \build/
-Release/
-Debug/
+**/Release/
+**/Debug/
 .vscode/.browse.VC.db
 .vscode/.browse.VC.db-wal
 .vscode/.browse.VC.db-shm
