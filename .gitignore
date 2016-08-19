@@ -3,3 +3,7 @@
 \build/
 Release/
 Debug/
+.vscode/.browse.VC.db
+.vscode/.browse.VC.db-wal
+.vscode/.browse.VC.db-shm
+.vscode/settings.json

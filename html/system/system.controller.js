@@ -1,21 +1,74 @@
 ﻿(function () {
     'use strict';
 
-    /*
     angular
         .module('app')
         .controller('SystemController', SystemController);
 
-     SystemController.$inject = ['$location', 'AuthenticationService', '$timeout', '$http', 'Upload', 'ModalService'];
-     function SystemController($location, AuthenticationService, $timeout, $http, Upload, ModalService) {
+    var waitingDialog = waitingDialog || (function ($) {
+        'use strict';
 
-    */
+        // Creating modal dialog's DOM
+        var $dialog = $(
+            '<div class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-hidden="true" style="padding-top:15%; overflow-y:visible;">' +
+            '<div class="modal-dialog modal-m">' +
+            '<div class="modal-content">' +
+            '<div class="modal-header"><h3 style="margin:0;"></h3></div>' +
+            '<div class="modal-body">' +
+            '<div class="progress progress-striped active" style="margin-bottom:0;"><div class="progress-bar" style="width: 100%"></div></div>' +
+            '</div>' +
+            '</div></div></div>');
 
-    var app = angular.module('app');
+        return {
+            /**
+             * Opens our dialog
+             * @param message Custom message
+             * @param options Custom options:
+             * 				  options.dialogSize - bootstrap postfix for dialog size, e.g. "sm", "m";
+             * 				  options.progressType - bootstrap postfix for progress bar type, e.g. "success", "warning".
+             */
+            show: function (message, options) {
+                // Assigning defaults
+                if (typeof options === 'undefined') {
+                    options = {};
+                }
+                if (typeof message === 'undefined') {
+                    message = 'Loading';
+                }
+                var settings = $.extend({
+                    dialogSize: 'm',
+                    progressType: '',
+                    onHide: null // This callback runs after the dialog was hidden
+                }, options);
 
-    app.controller('SystemController', SystemController);
-    SystemController.$inject = ['$location', '$rootScope', 'AuthenticationService', '$timeout', 'ModalService'];
-    function SystemController($location, $rootScope, AuthenticationService, $timeout, ModalService) {
+                // Configuring dialog
+                $dialog.find('.modal-dialog').attr('class', 'modal-dialog').addClass('modal-' + settings.dialogSize);
+                $dialog.find('.progress-bar').attr('class', 'progress-bar');
+                if (settings.progressType) {
+                    $dialog.find('.progress-bar').addClass('progress-bar-' + settings.progressType);
+                }
+                $dialog.find('h3').text(message);
+                // Adding callbacks
+                if (typeof settings.onHide === 'function') {
+                    $dialog.off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+                        settings.onHide.call($dialog);
+                    });
+                }
+                // Opening dialog
+                $dialog.modal();
+            },
+            /**
+             * Closes dialog
+             */
+            hide: function () {
+                $dialog.modal('hide');
+            }
+        };
+
+    })(jQuery);
+
+    SystemController.$inject = ['$rootScope', 'AuthenticationService', '$http', '$timeout', '$interval', 'ModalService'];
+    function SystemController($rootScope, AuthenticationService, $http, $timeout, $interval, ModalService) {
 
         var vm = this;
 
@@ -41,27 +94,28 @@
 
         function get_password() {
 
-            $http.get('api/system/password')
+            $http.get('/api/system/password')
                 .success(function(data, status, headers, config) {
                     if (status == 200) {
                         vm.password = data['password'];
 
-                        vm.status = "Succeeded to get the password!";
-
-                        $('#status').css('background-color', '#00FF00'); // change the background color
-                        $('#status').css('color', '#000000'); // change the background color
-
-                        clearTimeout(5000);
-                        $timeout(resetStatusControl, 5000);
+                        showStatusMessageWithBackcolor(
+                            "Succeeded to get the password!",
+                            "white",
+                            "rgb(146, 208, 80)");
                     }
                     else
                         handleError("Couldn't get the password! : " + status);
                 })
                 .error(function(data, status, header, config) {
-                    handleError("Couldn't get the password! : " + status)
+                    handleError("Couldn't get the password! : " + status);
+
+                    showStatusMessageWithTextcolor(
+                        "There are some problem in the device, so 'Get Password' request is rejected.",
+                        '#FF0000');
                 });
 
-        };
+        }
 
         function set_password() {
 
@@ -78,41 +132,44 @@
             $http.post('api/system/password', newPassword, config)
                 .success(function(data, status, headers, config) {
                     if (status == 200) {
-                        vm.status = "Succeeded to set the password!";
 
-                        $('#status').css('background-color', '#00FF00'); // change the background color
-                        $('#status').css('color', '#000000'); // change the background color
-
-                        clearTimeout(5000);
-                        $timeout(resetStatusControl, 5000);
+                        showStatusMessage(
+                            "Succeeded to set the password!",
+                            "white",
+                            "rgb(146, 208, 80)");
                     }
                     else
                         handleError("Couldn't set the password! : " + status);
                 })
                 .error(function(data, status, header, config) {
                     handleError("Couldn't set the password! : " + status);
+
+                    showStatusMessageWithTextcolor(
+                        "There are some problem in the device, so 'Set Password' request is rejected.",
+                        '#FF0000');
                 });
 
-        };
+        }
 
         function retrieve_rx_tx_power() {
-            $http.get('api/system/rx_tx_power')
+            $http.get('/api/system/rx_tx_power')
                 .success(function(data, status, headers, config) {
                     vm.rx_power = data['rx_power'];
                     vm.tx_power = data['tx_power'];
 
-                    vm.status = "Succeeded to retrieve Rx/Tx Power!";
-
-                    $('#status').css('background-color' , '#00FF00'); // change the background color
-                    $('#status').css('color' , '#000000'); // change the background color
-
-                    clearTimeout(5000);
-                    $timeout(resetStatusControl, 5000);
+                    showStatusMessageWithBackcolor(
+                        "Succeeded to retrieve Rx/Tx Power!",
+                        "white",
+                        "rgb(146, 208, 80)");
                 })
                 .error(function(data, status, header, config) {
-                    handleError("Couldn't retrieve Rx/Tx Power!")
+                    handleError("Couldn't retrieve Rx/Tx Power!");
+
+                    showStatusMessageWithTextcolor(
+                        "There are some problem in the device, so 'Retrieve Rx/Tx Power' request is rejected.",
+                        '#FF0000');
                 });
-        };
+        }
 
         function upgrade_firmware() {
 
@@ -130,49 +187,85 @@
                     //  message = "You said " + result;
                 });
             });
-
-            /*
-            if (!vm.upload_file) {
-                console.log("Um, couldn't find the fileinput element.");
-            }
-            else if (!vm.upload_file.files) {
-                console.log("This browser doesn't seem to support the `files` property of file inputs.");
-            }
-            else if (!vm.upload_file.files[0]) {
-                console.log("Please select a file before clicking 'Load'");
-            }
-            else {
-                var selected_file = vm.upload_file.files[0];
-                console.log("File " + selected_file.name + " is " + selected_file.size + " bytes in size");
-
-                Upload.upload({
-                    url: '/upload_firmware',
-                    data: {file: selected_file}
-                }).then(function (resp) {
-                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-                }, function (resp) {
-                    console.log('Error status: ' + resp.status);
-                }, function (evt) {
-                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-                });
-            }
-            */
-        };
+        }
 
         function reboot_system() {
-            vm.isRebooting = true;
-            vm.status = "Now, this device is going to reboot!";
+            var api_name = '/api/system/reboot';
 
-            $('#status').css('background-color' , 'rgb(192, 192, 192)'); // change the background color
-            $('#status').css('color' , '#000000'); // change the background color
-        };
+            $http.get(api_name)
+                .success(function(data, status, headers, config) {
+                    if (data['status'] != 'ready')
+                    {
+                        showStatusMessageWithBackcolor(
+                            "Now, the device is going to prepare rebootring, so please retry again after rebooting the device.",
+                            "white",
+                            "rgb(255, 102, 102)"
+                        );
 
-        function resetStatusControl() {
-            vm.status = "";
-            $('#status').css('background-color', $('#rx_power').css('background-color'));
-            $('#status').css('color', $('#rx_power').css('color'));
-        };
+                        return;
+                    }
+
+                })
+                .error(function(data, status, header, config) {
+                    showStatusMessageWithBackcolor(
+                        "There are some errors in the device. Please check your device and retry again later.",
+                        "white",
+                        "rgb(255, 102, 102)"
+                    );
+
+                    return;
+                });
+
+            $http.post(api_name)
+                .success(function(data, status, headers, config) {
+                    if (status == 200) {
+                        vm.isRebooting = true;
+
+                        waitingDialog.show("Please wait while rebooting...");
+
+                        var check_system = $interval(function() {
+
+                            $http.get(api_name)
+                                .success(function(data, status, headers, config) {
+                                    if (data['status'] == 'ready')
+                                    {
+                                        $interval.cancel(check_system);
+
+                                        vm.isRebooting = false;
+
+                                        waitingDialog.hide();
+
+                                        showStatusMessageWithBackcolor(
+                                            "Now, this device was rebooted!",
+                                            "white",
+                                            "rgb(146, 208, 80)");
+                                    }
+
+                                })
+                                .error(function(data, status, header, config) {
+                                });
+                        }, 500);
+                    }
+                    else {
+                        vm.isRebooting = false;
+
+                        waitingDialog.hide();
+
+                        showStatusMessageWithTextcolor(
+                            "There are some problem in the device, so 'Reboot System' request is rejected.",
+                            '#FF0000');
+                    }
+                })
+                .error(function(data, status, header, config) {
+                    vm.isRebooting = false;
+
+                    waitingDialog.hide();
+
+                    showStatusMessageWithTextcolor(
+                        "There are some problem in the device, so the 'Reboot System' request is rejected.",
+                        '#FF0000');
+                });
+        }
 
         // private functions
         function handleSuccess(res) {
@@ -180,13 +273,7 @@
         }
 
         function handleError(error) {
-            vm.status = error;
-
-            $('#status').css('background-color' , '#FF0000'); // change the background color
-            $('#status').css('color' , '#FFFFFF'); // change the background color
-
-            clearTimeout(5000);
-            $timeout(resetStatusControl, 5000); // 3000ms(3초)가 경과하면 resetStatusControl() 함수를 실행합니다.
+            showStatusMessageWithBackcolor(error, '#FFFFFF', 'rgb(255, 102, 102)');
 
             return function () {
                 return { success: false, message: error };
@@ -206,117 +293,31 @@
 
             return vm.upload_file.files[0].name;
         }
+
+        function showStatusMessageWithTextcolor(message, textColor) {
+            showStatusMessage(message, textColor, $('#rx_power').css('background-color'), true);
+        }
+
+        function showStatusMessageWithBackcolor(message, textColor, backColor) {
+            showStatusMessage(message, textColor, backColor, true);
+        }
+
+        function showStatusMessage(message, textColor, backColor, clearMessageAfter5Secs) {
+            vm.status = message;
+            $('#status').css('color' , textColor);
+            $('#status').css('background-color', backColor);
+
+            if (clearMessageAfter5Secs == true) {
+                clearTimeout(5000);
+                $timeout(resetStatusControl, 5000);
+            }
+        }
+
+        function resetStatusControl() {
+            vm.status = "";
+            $('#status').css('color' , $('#rx_power').css('color'));
+            $('#status').css('background-color', $('#rx_power').css('background-color'));
+        }
     }
-
-    app.controller('FileUploadController', FileUploadController);
-    FileUploadController.$inject = ['$location', '$rootScope', '$element', '$timeout', 'close', 'Upload'];
-    function FileUploadController($location, $rootScope, $element, $timeout, close, Upload) {
-
-        var vm = this;
-
-        vm.filename = "";
-
-        vm.title = 'Firmware Upload'
-
-        vm.status_info = '';
-        vm.status_show = false;
-
-        vm.button_title = "Stop";
-
-        vm.pb_type = 'success';
-        vm.pb_value= 0;
-
-        vm.status_style = {"color":"black"};
-
-        (function initController() {
-
-            $timeout(fileUpload, 100);
-
-        })();
-
-        function fileUpload() {
-            vm.status_show = false;
-
-            // reset login status
-            if (!$rootScope.system_controller.upload_file) {
-                vm.status_info = "Um, couldn't find the upload file(s).";
-                vm.status_show = true;
-
-                console.log(vm.status_info);
-
-                vm.status_style = {"color":"red"}; // change the text color
-            }
-            else if (!$rootScope.system_controller.upload_file.files) {
-                vm.status_info = "This browser doesn't seem to support the `files` property of file inputs.";
-                vm.status_show = true;
-
-                console.log(vm.status_info);
-
-                vm.status_style = {"color":"red"}; // change the text color
-            }
-            else if (!$rootScope.system_controller.upload_file.files[0]) {
-                vm.status_info = "Please select a file before clicking 'Select'";
-                vm.status_show = true;
-
-                console.log(vm.status_info);
-
-                vm.status_style = {"color":"red"}; // change the text color
-            }
-            else {
-                var selected_file = $rootScope.system_controller.upload_file.files[0];
-
-                vm.filename = selected_file.name;
-                vm.button_title = "Stop";
-
-                console.log("File " + selected_file.name + " is " + selected_file.size + " bytes in size");
-
-                Upload.upload({
-                    url: '/upload_firmware',
-                    data: {file: selected_file}
-                }).then(function (resp) {
-                    vm.button_title = "Close";
-
-                    vm.status_info = 'The file uploaded successfully.';
-                    vm.status_show = true;
-
-                    vm.status_style = {"color":"blue"}; // change the text color
-
-                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-                }, function (resp) {
-                    vm.status_info = 'There are some errors in the device. Please check your device and retry again later.';
-                    vm.status_show = true;
-
-                    vm.button_title = "OK";
-                    vm.pb_type = 'danger';
-
-                    //$('#upload_status').css('background-color' , '#FF0000'); // change the background color
-                    vm.status_style = {"color":'red'}; // change the text color
-
-                    console.log('Error status: ' + resp.status);
-
-                }, function (evt) {
-                    var progressPercentage = 0.0;
-
-                    if (evt.total > 0)
-                        progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-
-                    vm.pb_value = progressPercentage;
-
-                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-                });
-            }
-        }
-
-        function close() {
-            if (vm.pb_value == 100)
-            {
-            }
-
-            $element.modal('hide');
-            close(result, 500); // close, but give 500ms for bootstrap to animate
-
-            //  $element.close("TTTT", 500); // close, but give 500ms for bootstrap to animate
-        }
-    };
 
 })();

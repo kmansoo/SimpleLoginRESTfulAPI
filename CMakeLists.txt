@@ -33,6 +33,7 @@ ADD_SUBDIRECTORY(dependency/Luna)
 add_executable (SimpleLoginRESTfulAPI
     src/main.cpp
     src/SimpleLoginRESTfulApi.cpp
+    src/fake_device/fake_device.cpp
     src/md5/md5.cpp
 )
 

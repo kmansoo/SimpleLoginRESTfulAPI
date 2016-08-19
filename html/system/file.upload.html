@@ -19,7 +19,7 @@
 		    <label for="age" class="col-sm-2 control-label">Progress</label>
 		    <div class="col-sm-10">
                 <uib-progressbar class="progress-striped active" value="vm.pb_value" type="{{vm.pb_type}}"><b>{{vm.pb_value}}%</b></uib-progressbar>
-                <input type="text" name="status_info" id="status_info" class="form-control" readonly="readonly"
+                <textarea type="text" name="status_info" id="status_info" class="form-control" readonly="readonly"
                        ng-model="vm.status_info"
                        ng-style="vm.status_style"
                        ng-show="vm.status_show"/>
@@ -29,7 +29,10 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" ng-click="close()" class="btn btn-primary" data-dismiss="modal">{{vm.button_title}}</button>
+        <button type="button" class="btn btn-primary"
+                ng-click="closeDialog()"
+                ng-disabled="vm.upgrade_firmware_status"
+                data-dismiss="modal">{{vm.button_title}}</button>
       </div>
     </div>
   </div>

@@ -22,7 +22,7 @@
     <div class="form-group well">
         <form ng-submit="vm.upgrade_firmware()">
             <label class="control-label">Firmware Upgrade</label>
-            <input id="upload_file" type="file" class="file" data-show-preview="false" ng-model="vm.upload_file"/>
+            <input id="upload_file" type="file" class="file" data-show-preview="false" ng-disabled="vm.isRebooting" ng-model="vm.upload_file"/>
         </form>
     </div>
     <div class="form-horizontal">
