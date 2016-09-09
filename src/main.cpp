@@ -14,18 +14,16 @@
 
 #include "SimpleLoginRESTfulApi.h"
 
-class FirmwareUploadPage : public Luna::ccWebServerFileUploadPage
-{
+class FirmwareUploadPage : public Luna::ccWebServerFileUploadPage {
 public:
     FirmwareUploadPage() : ccWebServerFileUploadPage("/upload_firmware", "mskim.dat") {}
 };
 
-int main(int argc, char* argv[])
-{
-    Luna::ccNetworkManager::getInstance().init();
+int main(int argc, char* argv[]) {
+    Luna::ccNetworkManager::instance().init();
 
     //  choose a Web Server : Abstract Factory Design Pattern
-    Luna::ccWebServerManager::getInstance().attachFactory(std::make_shared<Luna::ccMongooseWebServerObjectFactory>());
+    Luna::ccWebServerManager::instance().attach_factory(std::make_shared<Luna::ccMongooseWebServerObjectFactory>());
 
     auto pWebApi = std::make_shared<SimpleLoginRESTfulApi>();
 
@@ -36,12 +34,12 @@ int main(int argc, char* argv[])
 
     auto pageDirecotry = std::make_shared<Luna::ccWebServerPageDirectory>();
 
-    pageDirecotry->registerPage(std::make_shared<FirmwareUploadPage>());
+    pageDirecotry->register_page(std::make_shared<FirmwareUploadPage>());
 
-    Luna::ccWebServerManager::getInstance().createWebServer("Simple Login Web Server", "8000", web_directory_path, pageDirecotry);
-    Luna::ccWebServerManager::getInstance().addRESTfulApi(pWebApi);
+    Luna::ccWebServerManager::instance().create_web_server("Simple Login Web Server", "8000", web_directory_path, pageDirecotry);
+    Luna::ccWebServerManager::instance().add_restful_api(pWebApi);
 
-    Luna::ccWebServerManager::getInstance().start();
+    Luna::ccWebServerManager::instance().start();
 
     while (1)
         Luna::sleep(100);

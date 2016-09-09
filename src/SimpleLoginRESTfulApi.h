@@ -10,10 +10,8 @@
 
 #include "ccWebServer/ccRESTfulApi.h"
 
-
 class SimpleLoginRESTfulApi :
-    public Luna::ccRESTfulApi
-{
+    public Luna::ccRESTfulApi {
 public:
     SimpleLoginRESTfulApi();
 

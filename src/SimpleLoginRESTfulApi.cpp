@@ -16,8 +16,7 @@
 #include "Definitions.h"
 #include "fake_device/fake_device.h"
 
-SimpleLoginRESTfulApi::SimpleLoginRESTfulApi()
-{
+SimpleLoginRESTfulApi::SimpleLoginRESTfulApi() {
     addAPI(std::string("/api/users/*"), std::bind(&SimpleLoginRESTfulApi::users, this, std::placeholders::_1, std::placeholders::_2));
     addAPI(std::string("/api/system/password"), std::bind(&SimpleLoginRESTfulApi::password, this, std::placeholders::_1, std::placeholders::_2));
     addAPI(std::string("/api/system/rx_tx_power"), std::bind(&SimpleLoginRESTfulApi::rx_tx_power, this, std::placeholders::_1, std::placeholders::_2));
@@ -25,31 +24,30 @@ SimpleLoginRESTfulApi::SimpleLoginRESTfulApi()
     addAPI(std::string("/api/system/firmware_upgrade"), std::bind(&SimpleLoginRESTfulApi::firmware_upgrade, this, std::placeholders::_1, std::placeholders::_2));
 }
 
-bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
-{
-    switch ((std::uint32_t)pRequest->getMethod()) {
-    case Luna::ccWebServerRequest::HttpMethod_Get: {
+bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
+    switch ((std::uint32_t)pRequest->get_method()) {
+    case Luna::ccWebServerRequest::HttpMethod_Get:
+    {
         //  I'll implement this method as soon as possible.
-        std::string strUserID = pRequest->getResource();
+        std::string strUserID = pRequest->get_resource();
 
         if (strUserID == luna_getLoginID()) {
-            Json::Value oResponseJsonValue;
-            Json::StyledWriter oWriter;
+            Json::Value response_json_value;
+            Json::StyledWriter json_writer;
 
-            oResponseJsonValue["user"] = strUserID;
-            oResponseJsonValue["password"] = BZF::md5(luna_getLoginPassword());
+            response_json_value["user"] = strUserID;
+            response_json_value["password"] = BZF::md5(luna_getLoginPassword());
 
-            std::string strJsonData = oWriter.write(oResponseJsonValue);
+            std::string json_data = json_writer.write(response_json_value);
 
-            pResponse->status(200, std::string("OK"));
-            pResponse->contentType("application/javascript", strJsonData.length());
-            pResponse->write(strJsonData);
+            pResponse->send_status(200, std::string("OK"));
+            pResponse->send_content_type("application/javascript", json_data.length());
+            pResponse->send_content(json_data);
 
             //  for test
             luna_initDeviceStatus();
-        }
-        else
-            pResponse->status(404, std::string("not found."), true);
+        } else
+            pResponse->send_status(404, std::string("not found."), true);
 
         break;
     }
@@ -58,74 +56,53 @@ bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pReq
     return true;
 }
 
-bool SimpleLoginRESTfulApi::password(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
-{
-    switch ((std::uint32_t)pRequest->getMethod()) {
-    case Luna::ccWebServerRequest::HttpMethod_Get: {
-        Json::Value oResponseJsonValue;
-        Json::StyledWriter oWriter;
+bool SimpleLoginRESTfulApi::password(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
+    switch ((std::uint32_t)pRequest->get_method()) {
+    case Luna::ccWebServerRequest::HttpMethod_Get:
+    {
+        Json::Value response_json_value;
+        Json::StyledWriter json_writer;
 
-        oResponseJsonValue["password"] = luna_getDevicePassword();
+        response_json_value["password"] = luna_getDevicePassword();
 
-        std::string strJsonData = oWriter.write(oResponseJsonValue);
+        std::string json_data = json_writer.write(response_json_value);
 
-        pResponse->status(200, std::string("OK"));
-        pResponse->contentType("application/javascript", strJsonData.length());
-        pResponse->write(strJsonData);
+        pResponse->send_status(200, std::string("OK"));
+        pResponse->send_content_type("application/javascript", json_data.length());
+        pResponse->send_content(json_data);
         break;
     }
 
-    case Luna::ccWebServerRequest::HttpMethod_Post: {
-        Json::Reader    oReader;
-        Json::Value     oRootValue;
+    case Luna::ccWebServerRequest::HttpMethod_Post:
+    {
+        Json::Reader    json_reader;
+        Json::Value     root_value;
 
-        std::string     strJsonData;
+        std::string     json_data;
 
-        strJsonData.reserve(1024);
+        json_data.reserve(1024);
 
-        pRequest->getContentBody(strJsonData);
+        pRequest->get_content_body(json_data);
 
-        if (!oReader.parse(strJsonData, oRootValue)) {
-            pResponse->status(400, std::string("400 Bad Request."), true);
+        if (!json_reader.parse(json_data, root_value)) {
+            pResponse->send_status(400, std::string("400 Bad Request."), true);
             return false;
         }
 
-        if (oRootValue["password"].isNull() == true) {
-            pResponse->status(400, std::string("400 Bad Request."), true);
+        if (root_value["password"].isNull() == true) {
+            pResponse->send_status(400, std::string("400 Bad Request."), true);
 
             return false;
         }
 
-        if (oRootValue["password"].asString().length() == 0) {
-            pResponse->status(400, std::string("400 Bad Request."), true);
+        if (root_value["password"].asString().length() == 0) {
+            pResponse->send_status(400, std::string("400 Bad Request."), true);
             return false;
         }
 
-        luna_setDevicePassword(oRootValue["password"].asString().c_str());
+        luna_setDevicePassword(root_value["password"].asString().c_str());
 
-        pResponse->status(200, std::string("OK"), true);
-        break;
-    }
-    }
-
-    return true;
-}
-
-bool SimpleLoginRESTfulApi::rx_tx_power(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
-{
-    switch ((std::uint32_t)pRequest->getMethod()) {
-    case Luna::ccWebServerRequest::HttpMethod_Get: {
-        Json::Value oResponseJsonValue;
-        Json::StyledWriter oWriter;
-
-        oResponseJsonValue["rx_power"] = luna_getRxPower();
-        oResponseJsonValue["tx_power"] = luna_getTxPower();
-
-        std::string strJsonData = oWriter.write(oResponseJsonValue);
-
-        pResponse->status(200, std::string("OK"));
-        pResponse->contentType("application/javascript", strJsonData.length());
-        pResponse->write(strJsonData);
+        pResponse->send_status(200, std::string("OK"), true);
         break;
     }
     }
@@ -133,34 +110,57 @@ bool SimpleLoginRESTfulApi::rx_tx_power(std::shared_ptr<Luna::ccWebServerRequest
     return true;
 }
 
-bool SimpleLoginRESTfulApi::system_reboot(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
-{
-    switch ((std::uint32_t)pRequest->getMethod()) {
-    case Luna::ccWebServerRequest::HttpMethod_Get: {
-        Json::Value oResponseJsonValue;
-        Json::StyledWriter oWriter;
+bool SimpleLoginRESTfulApi::rx_tx_power(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
+    switch ((std::uint32_t)pRequest->get_method()) {
+    case Luna::ccWebServerRequest::HttpMethod_Get:
+    {
+        Json::Value response_json_value;
+        Json::StyledWriter json_writer;
+
+        response_json_value["rx_power"] = luna_getRxPower();
+        response_json_value["tx_power"] = luna_getTxPower();
+
+        std::string json_data = json_writer.write(response_json_value);
+
+        pResponse->send_status(200, std::string("OK"));
+        pResponse->send_content_type("application/javascript", json_data.length());
+        pResponse->send_content(json_data);
+        break;
+    }
+    }
+
+    return true;
+}
+
+bool SimpleLoginRESTfulApi::system_reboot(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
+    switch ((std::uint32_t)pRequest->get_method()) {
+    case Luna::ccWebServerRequest::HttpMethod_Get:
+    {
+        Json::Value response_json_value;
+        Json::StyledWriter json_writer;
 
         switch (luna_getSystemRebootingStatus()) {
-        case kSystemReady:            
-            oResponseJsonValue["status"] = "ready";
+        case kSystemReady:
+            response_json_value["status"] = "ready";
             break;
 
-        case kSystemRebooting:            
-            oResponseJsonValue["status"] = "rebooting";
-            break;            
+        case kSystemRebooting:
+            response_json_value["status"] = "rebooting";
+            break;
         }
-        
-        std::string strJsonData = oWriter.write(oResponseJsonValue);
 
-        pResponse->status(200, std::string("OK"));
-        pResponse->contentType("application/javascript", strJsonData.length());
-        pResponse->write(strJsonData);
+        std::string json_data = json_writer.write(response_json_value);
+
+        pResponse->send_status(200, std::string("OK"));
+        pResponse->send_content_type("application/javascript", json_data.length());
+        pResponse->send_content(json_data);
         break;
     }
 
-    case Luna::ccWebServerRequest::HttpMethod_Post: {
+    case Luna::ccWebServerRequest::HttpMethod_Post:
+    {
         luna_startSystemRebooting();
-        pResponse->status(200, std::string("OK"), true);
+        pResponse->send_status(200, std::string("OK"), true);
         break;
     }
     }
@@ -168,47 +168,46 @@ bool SimpleLoginRESTfulApi::system_reboot(std::shared_ptr<Luna::ccWebServerReque
     return true;
 }
 
-
-bool SimpleLoginRESTfulApi::firmware_upgrade(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse)
-{
-    switch ((std::uint32_t)pRequest->getMethod()) {
-    case Luna::ccWebServerRequest::HttpMethod_Get: {
-        Json::Value oResponseJsonValue;
-        Json::StyledWriter oWriter;
+bool SimpleLoginRESTfulApi::firmware_upgrade(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
+    switch ((std::uint32_t)pRequest->get_method()) {
+    case Luna::ccWebServerRequest::HttpMethod_Get:
+    {
+        Json::Value response_json_value;
+        Json::StyledWriter json_writer;
 
         switch (luna_getFirmwareUpgradeStatus()) {
         case kUpgradeReady:
-            oResponseJsonValue["status"] = "ready";
+            response_json_value["status"] = "ready";
             break;
 
-        case kFirmwareWriting:            
-            oResponseJsonValue["status"] = "rebooting";
+        case kFirmwareWriting:
+            response_json_value["status"] = "rebooting";
             break;
 
-        case fUpgradeFinished:            
-            oResponseJsonValue["status"] = "finished";
-            break;        
+        case fUpgradeFinished:
+            response_json_value["status"] = "finished";
+            break;
         }
-        
-        std::string strJsonData = oWriter.write(oResponseJsonValue);
 
-        pResponse->status(200, std::string("OK"));
-        pResponse->contentType("application/javascript", strJsonData.length());
-        pResponse->write(strJsonData);
+        std::string json_data = json_writer.write(response_json_value);
+
+        pResponse->send_status(200, std::string("OK"));
+        pResponse->send_content_type("application/javascript", json_data.length());
+        pResponse->send_content(json_data);
         break;
     }
 
-    case Luna::ccWebServerRequest::HttpMethod_Post: {
-        if (luna_getFirmwareUpgradeStatus() != kUpgradeReady)
-        {
-            pResponse->status(406, std::string("Not Acceptable"), true);
+    case Luna::ccWebServerRequest::HttpMethod_Post:
+    {
+        if (luna_getFirmwareUpgradeStatus() != kUpgradeReady) {
+            pResponse->send_status(406, std::string("Not Acceptable"), true);
             break;
         }
 
         if (luna_startFirmwareUpgrade("") == false)
             printf("luna_startFirmwareUpgrade() --> fail\n");
-            
-        pResponse->status(200, std::string("OK"), true);
+
+        pResponse->send_status(200, std::string("OK"), true);
         break;
     }
 
