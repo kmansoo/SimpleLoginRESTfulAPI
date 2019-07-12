@@ -12,11 +12,12 @@ SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(
 	./ 
-	./dependency/Luna/src/Library 
-	./dependency/Luna/src/FossLibrary
-	./dependency/Luna/src/ThirdPartyLibrary
-	./dependency/Luna/src/ProductLibrary)
-
+	./dependency/Luna/src/Library/ccCore/include
+	./dependency/Luna/src/Library/ccNetwork/include
+	./dependency/Luna/src/Library/ccWebServer/include
+	./dependency/Luna/src/FossLibrary/ccJsonParser/include
+	./dependency/Luna/src/ThirdPartyLibrary/ccMongooseServer/include
+)
 
 # Check OS and Processor Information 
 #

@@ -7,9 +7,9 @@
 
 #include "SimpleLoginRESTfulApi.h"
 
-#include "ccJsonParser/json/value.h"
-#include "ccJsonParser/json/reader.h"
-#include "ccJsonParser/json/writer.h"
+#include "json/value.h"
+#include "json/reader.h"
+#include "json/writer.h"
 
 #include "md5/md5.h"
 

@@ -2,13 +2,13 @@
 #include <chrono>
 #include <thread>
 
-#include "ccCore/ccSingletonT.h"
+#include "ccCore/ccSingleton.h"
 
 #include "fake_device.h"
 
 #include "../Definitions.h"
 
-class FakeDeviceManager {
+class FakeDeviceManager : public Luna::ccSingleton<FakeDeviceManager> {
 public:
     FakeDeviceManager() {
         // init member variables
@@ -65,8 +65,8 @@ public:
 
 
 void  luna_initDeviceStatus() {
-    Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_ = kUpgradeReady;
-    Luna::ccSingletonT<FakeDeviceManager>::instance().system_rebootinge_status_ = kSystemReady;
+    FakeDeviceManager::instance().firmware_upgrade_status_ = kUpgradeReady;
+    FakeDeviceManager::instance().system_rebootinge_status_ = kSystemReady;
 }
 
 //  return value:
@@ -74,20 +74,20 @@ void  luna_initDeviceStatus() {
 //      0: fail 
 
 const char* luna_getLoginID() {
-    return Luna::ccSingletonT<FakeDeviceManager>::instance().login_user_id_.c_str();
+    return FakeDeviceManager::instance().login_user_id_.c_str();
 }
 
 const char* luna_getLoginPassword() {
-    return Luna::ccSingletonT<FakeDeviceManager>::instance().login_user_password_.c_str();
+    return FakeDeviceManager::instance().login_user_password_.c_str();
 }
 
 
 const char* luna_getDevicePassword() {
-    return Luna::ccSingletonT<FakeDeviceManager>::instance().device_password_.c_str();
+    return FakeDeviceManager::instance().device_password_.c_str();
 }
 
 void luna_setDevicePassword(const char* new_password) {
-    Luna::ccSingletonT<FakeDeviceManager>::instance().device_password_ = new_password;
+    FakeDeviceManager::instance().device_password_ = new_password;
 }
 
 const char* luna_getRxPower() {
@@ -103,7 +103,7 @@ const char* luna_getTxPower() {
 //
 
 void luna_initFirmwareUpgradeStatus() {
-    Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_ = kUpgradeReady;
+    FakeDeviceManager::instance().firmware_upgrade_status_ = kUpgradeReady;
 }
 
 //  return value:
@@ -112,21 +112,21 @@ void luna_initFirmwareUpgradeStatus() {
 //      2: finished writing a firmwre.
 //     -1: there are some errors
 int luna_getFirmwareUpgradeStatus() {
-    return Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_;
+    return FakeDeviceManager::instance().firmware_upgrade_status_;
 }
 
 bool luna_startFirmwareUpgrade(const char* file_path) {
-    if (Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_ == kFirmwareWriting)
+    if (FakeDeviceManager::instance().firmware_upgrade_status_ == kFirmwareWriting)
         return false;
 
-    Luna::ccSingletonT<FakeDeviceManager>::instance().destroyFirmwareUpgradeThread();
+    FakeDeviceManager::instance().destroyFirmwareUpgradeThread();
 
-    Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_thread_ = new std::thread([]() {
-        Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_ = kFirmwareWriting;
+    FakeDeviceManager::instance().firmware_upgrade_thread_ = new std::thread([]() {
+        FakeDeviceManager::instance().firmware_upgrade_status_ = kFirmwareWriting;
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
-        Luna::ccSingletonT<FakeDeviceManager>::instance().firmware_upgrade_status_ = fUpgradeFinished;
+        FakeDeviceManager::instance().firmware_upgrade_status_ = fUpgradeFinished;
     });
 
     return true;
@@ -141,21 +141,21 @@ bool luna_startFirmwareUpgrade(const char* file_path) {
 //      1: rebooting
 //     -1: there are some errors
 int luna_getSystemRebootingStatus() {
-    return Luna::ccSingletonT<FakeDeviceManager>::instance().system_rebootinge_status_;
+    return FakeDeviceManager::instance().system_rebootinge_status_;
 }
 
 bool luna_startSystemRebooting() {
-    if (Luna::ccSingletonT<FakeDeviceManager>::instance().system_rebootinge_status_ == kSystemRebooting)
+    if (FakeDeviceManager::instance().system_rebootinge_status_ == kSystemRebooting)
         return false;
 
-    Luna::ccSingletonT<FakeDeviceManager>::instance().destroySystemRebootThread();
+    FakeDeviceManager::instance().destroySystemRebootThread();
 
-    Luna::ccSingletonT<FakeDeviceManager>::instance().system_reboot_thread_ = new std::thread([]() {
-        Luna::ccSingletonT<FakeDeviceManager>::instance().system_rebootinge_status_ = kSystemRebooting;
+    FakeDeviceManager::instance().system_reboot_thread_ = new std::thread([]() {
+        FakeDeviceManager::instance().system_rebootinge_status_ = kSystemRebooting;
 
         std::this_thread::sleep_for(std::chrono::seconds(5));
 
-        Luna::ccSingletonT<FakeDeviceManager>::instance().system_rebootinge_status_ = kSystemReady;
+        FakeDeviceManager::instance().system_rebootinge_status_ = kSystemReady;
     });
 
     return true;
