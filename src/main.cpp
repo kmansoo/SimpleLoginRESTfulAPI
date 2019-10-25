@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
 
     pageDirecotry->register_page(std::make_shared<FirmwareUploadPage>());
 
-    Luna::ccWebServerManager::instance().create_web_server("Simple Login Web Server", "8000", web_directory_path, pageDirecotry);
+    Luna::ccWebServerManager::instance().create_web_server("Simple Login Web Server", "8001", web_directory_path, pageDirecotry);
     Luna::ccWebServerManager::instance().add_restful_api(pWebApi);
 
     Luna::ccWebServerManager::instance().start();

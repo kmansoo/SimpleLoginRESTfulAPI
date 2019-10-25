@@ -17,11 +17,11 @@
 #include "fake_device/fake_device.h"
 
 SimpleLoginRESTfulApi::SimpleLoginRESTfulApi() {
-    addAPI(std::string("/api/users/*"), std::bind(&SimpleLoginRESTfulApi::users, this, std::placeholders::_1, std::placeholders::_2));
-    addAPI(std::string("/api/system/password"), std::bind(&SimpleLoginRESTfulApi::password, this, std::placeholders::_1, std::placeholders::_2));
-    addAPI(std::string("/api/system/rx_tx_power"), std::bind(&SimpleLoginRESTfulApi::rx_tx_power, this, std::placeholders::_1, std::placeholders::_2));
-    addAPI(std::string("/api/system/reboot"), std::bind(&SimpleLoginRESTfulApi::system_reboot, this, std::placeholders::_1, std::placeholders::_2));
-    addAPI(std::string("/api/system/firmware_upgrade"), std::bind(&SimpleLoginRESTfulApi::firmware_upgrade, this, std::placeholders::_1, std::placeholders::_2));
+    add_api(std::string("/api/users/*"), std::bind(&SimpleLoginRESTfulApi::users, this, std::placeholders::_1, std::placeholders::_2));
+    add_api(std::string("/api/system/password"), std::bind(&SimpleLoginRESTfulApi::password, this, std::placeholders::_1, std::placeholders::_2));
+    add_api(std::string("/api/system/rx_tx_power"), std::bind(&SimpleLoginRESTfulApi::rx_tx_power, this, std::placeholders::_1, std::placeholders::_2));
+    add_api(std::string("/api/system/reboot"), std::bind(&SimpleLoginRESTfulApi::system_reboot, this, std::placeholders::_1, std::placeholders::_2));
+    add_api(std::string("/api/system/firmware_upgrade"), std::bind(&SimpleLoginRESTfulApi::firmware_upgrade, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 bool SimpleLoginRESTfulApi::users(std::shared_ptr<Luna::ccWebServerRequest> pRequest, std::shared_ptr<Luna::ccWebServerResponse> pResponse) {
