@@ -19,6 +19,13 @@ include_directories(
 	./dependency/Luna/src/ThirdPartyLibrary/ccMongooseServer/include
 )
 
+#
+# To build with a release mode, cmake -DCMAKE_BUILD_TYPE=Release ..
+#
+if(NOT CMAKE_BUILD_TYPE) 
+  set(CMAKE_BUILD_TYPE Debug)
+endif(NOT CMAKE_BUILD_TYPE)
+
 # Check OS and Processor Information 
 #
 SET(CMAKE_CXX_FLAGS "-std=c++11")
